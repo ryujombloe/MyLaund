@@ -66,4 +66,47 @@ public class PesananController {
     public List<Notifikasi> getNotifikasiPelanggan(String idPelanggan) {
         return notifikasiService.ambilNotifikasiPelanggan(idPelanggan);
     }
+
+    public List<Pesanan> getPesananPelanggan(String idPelanggan) {
+        return pesananService.lihatPesananPelanggan(idPelanggan);
+    }
+
+    public List<Pesanan> getSemuaPesanan() {
+        return pesananService.lihatSemuaPesanan();
+    }
+
+    public boolean sudahDibayar(Pesanan pesanan) {
+        return pembayaranService.sudahDibayar(pesanan.getIdPesanan());
+    }
+
+    public Pembayaran getPembayaran(Pesanan pesanan) {
+        return pembayaranService.cariPembayaran(pesanan.getIdPesanan());
+    }
+
+    public String buatIdPesanan() {
+        int terbesar = 0;
+        for (Pesanan p : getSemuaPesanan()) {
+            terbesar = Math.max(terbesar, nomorAkhir(p.getIdPesanan()));
+        }
+        return String.format("ORD-%03d", terbesar + 1);
+    }
+
+    public String buatIdPembayaran() {
+        int terbesar = 0;
+        for (ITransaksi t : getRiwayatTransaksi()) {
+            if (t instanceof Pembayaran) {
+                terbesar = Math.max(terbesar, nomorAkhir(((Pembayaran) t).getIdPembayaran()));
+            }
+        }
+        return String.format("PAY-%03d", terbesar + 1);
+    }
+
+    /** Mengambil angka di belakang tanda hubung, misalnya 12 dari "ORD-012". */
+    private static int nomorAkhir(String id) {
+        try {
+            return Integer.parseInt(id.substring(id.lastIndexOf('-') + 1));
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
 }
